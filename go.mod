@@ -1,0 +1,9 @@
+module bulk-email
+
+go 1.17
+
+require (
+	github.com/PuerkitoBio/goquery v1.7.1
+	github.com/andybalholm/cascadia v1.3.1 // indirect
+	golang.org/x/net v0.0.0-20210929193557-e81a3d93ecf6 // indirect
+)
