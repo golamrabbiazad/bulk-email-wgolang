@@ -1,14 +1,33 @@
 package main
 
 import (
-	statenames "bulk-email/src/stateNames"
+	citynames "bulk-email/src/cityNames"
 	"fmt"
 )
 
 func main() {
-	allState := statenames.StateNames()
+	allCities := citynames.CityNames()
 
-	for idx, val := range allState {
-		fmt.Println(idx, val)
+	for _, val := range allCities {
+		res, err := http.Get("http://publicemailrecords.com/city/" + val + "/Arkansas")
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		defer res.Body.Close()
+
+		doc, err := goquery.NewDocumentFromReader(res.Body)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		doc.Find(".container .tbl-sect").Each(func(i int, s *goquery.Selection) {
+			s.Find("div.email.email-data.mk-link").Each(func(j int, q *goquery.Selection) {
+				text := q.Text()
+				fmt.Println(strings.TrimSpace(text))
+			})
+		})
 	}
 }
