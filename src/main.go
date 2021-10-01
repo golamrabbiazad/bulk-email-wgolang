@@ -3,11 +3,17 @@ package main
 import (
 	citynames "bulk-email/src/cityNames"
 	"fmt"
+	"log"
+	"net/http"
+	"strings"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 func main() {
 	allCities := citynames.CityNames()
 
+	fmt.Println("printing emails")
 	for _, val := range allCities {
 		res, err := http.Get("http://publicemailrecords.com/city/" + val + "/Arkansas")
 

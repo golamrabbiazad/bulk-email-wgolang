@@ -16,6 +16,8 @@ func CityNames() []string {
 
 	allStates := statenames.StateNames()
 
+	fmt.Println("wait for a while to collect cities...")
+
 	for _, val := range allStates {
 		res, err := http.Get(string(val))
 
@@ -39,11 +41,11 @@ func CityNames() []string {
 				trimmedCities := strings.Split(cities, " ")
 				cityList = append(cityList, trimmedCities...)
 			})
-
 		})
-		passCity = append(passCity, cityList...)
 	}
+	passCity = append(passCity, cityList...)
+
+	fmt.Println("Cities are now ready to pass on...")
 
 	return passCity
-
 }

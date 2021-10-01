@@ -1,6 +1,7 @@
 package statenames
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -34,5 +35,6 @@ func StateNames() []string {
 		passState = append(passState, stateList...)
 	})
 
+	fmt.Println("states are ready to pass on...")
 	return passState
 }
