@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -35,6 +36,6 @@ func StateNames() []string {
 		passState = append(passState, stateList...)
 	})
 
-	fmt.Println("states are ready to pass on...")
+	fmt.Println(strconv.Itoa(len(passState)) + " states are ready to pass on...")
 	return passState
 }
