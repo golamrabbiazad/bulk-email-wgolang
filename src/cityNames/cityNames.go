@@ -1,7 +1,6 @@
 package citynames
 
 import (
-	statenames "bulk-email/src/stateNames"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,12 +13,12 @@ func CityNames() []string {
 	var cityList []string
 	var passCity []string
 
-	allStates := statenames.StateNames()
+	// allStates := statenames.StateNames()
 
 	fmt.Println("wait for a while to collect cities...")
 
 	// for _, val := range allStates {
-	res, err := http.Get(string(allStates[0]))
+	res, err := http.Get("http://publicemailrecords.com/state/oklahoma")
 
 	if err != nil {
 		log.Fatal(err)
@@ -34,13 +33,12 @@ func CityNames() []string {
 	}
 
 	doc.Find("body > div.container > div > div").Each(func(i int, s *goquery.Selection) {
-
+		var cities []string
 		s.Find("h4").Each(func(j int, q *goquery.Selection) {
 			source := q.Text()
-			cities := strings.TrimSpace(source)
-			trimmedCities := strings.Split(cities, " ")
-			cityList = append(cityList, trimmedCities...)
+			cities = append(cities, strings.TrimSpace(source))
 		})
+		cityList = append(cityList, cities...)
 	})
 	// }
 	passCity = append(passCity, cityList...)
