@@ -12,7 +12,7 @@ import (
 func StateNames() []string {
 	var passState []string
 
-	res, err := http.Get("http://publicemailrecords.com/states")
+	res, err := http.Get("statenames")
 
 	if err != nil {
 		log.Fatal(err)

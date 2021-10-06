@@ -17,22 +17,17 @@ type ScrapeFormat struct {
 	email []string
 }
 
-var data [][]string
-
-// var cityData [][]string
-
-// var emailData [][]string
-
 func main() {
+	stateName := "Oklahoma"
+
 	newMapData := make(map[string]ScrapeFormat)
 
 	allCities := citynames.CityNames()
+
 	fmt.Println("collected cities")
 
-	data = append(data, allCities)
-
-	for idx, val := range allCities {
-		res, err := http.Get("http://publicemailrecords.com/city/" + val + "/Oklahoma")
+	for _, val := range allCities {
+		res, err := http.Get("http://publicemailrecords.com/city/" + val + "/" + stateName)
 		errorhandles.CheckError("can't get url response ", err)
 
 		defer res.Body.Close()
@@ -40,13 +35,8 @@ func main() {
 		doc, err := goquery.NewDocumentFromReader(res.Body)
 		errorhandles.CheckError("response body not parsed ", err)
 
-		if idx == 2 {
-			break
-		}
-
 		// set default value = 1
 		totalPage := 1
-		// var totalPage int
 
 		doc.Find("#citylistings > p > a:last-child").Each(func(i int, s *goquery.Selection) {
 			stringVal := strings.TrimSpace(s.Text())
@@ -61,72 +51,49 @@ func main() {
 		var text string
 		var textArr []string
 
-		doc.Find("div.email.email-data.mk-link").Each(func(j int, q *goquery.Selection) {
-			text = findEmail(q)
-			textArr = append(textArr, text)
-			newMapData[val] = ScrapeFormat{
-				email: textArr,
-			}
-		})
+		for i := 1; i <= totalPage; i++ {
+			newRes, err := http.Get("http://publicemailrecords.com/city/" + val + "/" + stateName + "?page=" + strconv.Itoa(i))
+			errorhandles.CheckError("Cannot get url ", err)
 
-		fmt.Println(newMapData)
+			defer res.Body.Close()
 
-		// cityData = append(cityData, textArr)
+			newDoc, err := goquery.NewDocumentFromReader(newRes.Body)
+			errorhandles.CheckError("response body not parsed ", err)
 
-		// emailData = append(emailData, textArr)
+			newDoc.Find("div.email.email-data.mk-link").Each(func(j int, q *goquery.Selection) {
+				text = findEmail(q)
+				textArr = append(textArr, strings.Fields(text)...)
+			})
+		}
+		newMapData[val] = ScrapeFormat{
+			email: textArr,
+		}
 
-		// for i := 1; i <= totalPage; i++ {
-		// 	newRes, err := http.Get("http://publicemailrecords.com/city/" + val + "/Oklahoma" + "?page=" + strconv.Itoa(i))
-		// 	errorhandles.CheckError("Cannot get url ", err)
-
-		// 	defer res.Body.Close()
-
-		// 	newDoc, err := goquery.NewDocumentFromReader(newRes.Body)
-		// 	errorhandles.CheckError("response body not parsed ", err)
-
-		// appendEmails(newDoc)
-
-		// var text string
-		// var textArr []string
-
-		// newDoc.Find("div.email.email-data.mk-link").Each(func(j int, q *goquery.Selection) {
-		// 	text = findEmail(q)
-		// 	textArr = append(textArr, text)
-		// })
-
-		// cityData = append(cityData, textArr)
-		// }
-
-	}
-
-	file, err := os.Create("./states/oklahoma.csv")
-	errorhandles.CheckError("Cannot create file", err)
-
-	defer file.Close()
-
-	writer := csv.NewWriter(file)
-
-	defer writer.Flush()
-
-	fmt.Println("\nReady to export in CSV")
-
-	for key, value := range newMapData {
-		r := make([]string, 0, 1+len(value.email))
-
-		r = append(r, key)
-		r = append(r, value.email...)
-		err := writer.Write(r)
-		if err != nil {
-			errorhandles.CheckError("error writing record to file", err)
+		if err := os.Mkdir("./states/"+stateName+"/", 0755); err != nil && !os.IsExist(err) {
+			errorhandles.CheckError("can't create directory ", err)
 		}
 	}
-	writer.Flush()
+
+	fmt.Println(newMapData)
+
+	for key, value := range newMapData {
+		file, err := os.Create("./states/" + stateName + "/" + key + ".csv")
+		errorhandles.CheckError("Cannot create file", err)
+
+		defer file.Close()
+
+		writer := csv.NewWriter(file)
+		defer writer.Flush()
+
+		fmt.Println("\nReady to export in CSV")
+
+		for _, valdx := range value.email {
+			if err := writer.Write(strings.Fields(valdx)); err != nil {
+				errorhandles.CheckError("can't writes values ", err)
+			}
+		}
+	}
 }
-
-// func appendEmails(doc *goquery.Document) {
-//
-
-// }
 
 func findEmail(card *goquery.Selection) string {
 	var text string
@@ -137,3 +104,6 @@ func findEmail(card *goquery.Selection) string {
 	fmt.Println(text)
 	return text
 }
+
+// stored data as this format
+// [{ Achille [example@gmail.com example@yahoo.com]} {Ada [example@gmail.com example@yahoo.com]}]
