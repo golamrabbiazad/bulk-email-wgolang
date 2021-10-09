@@ -18,13 +18,17 @@ type ScrapeFormat struct {
 }
 
 func main() {
-	stateName := "Oklahoma"
+	stateName := "Indiana"
 
 	newMapData := make(map[string]ScrapeFormat)
 
 	allCities := citynames.CityNames()
 
 	fmt.Println("collected cities")
+
+	if err := os.Mkdir("./states/"+stateName+"/", 0755); err != nil && !os.IsExist(err) {
+		errorhandles.CheckError("can't create directory ", err)
+	}
 
 	for _, val := range allCities {
 		res, err := http.Get("http://publicemailrecords.com/city/" + val + "/" + stateName)
@@ -34,6 +38,8 @@ func main() {
 
 		doc, err := goquery.NewDocumentFromReader(res.Body)
 		errorhandles.CheckError("response body not parsed ", err)
+
+		fmt.Println("\n" + val + "\n")
 
 		// set default value = 1
 		totalPage := 1
@@ -68,13 +74,7 @@ func main() {
 		newMapData[val] = ScrapeFormat{
 			email: textArr,
 		}
-
-		if err := os.Mkdir("./states/"+stateName+"/", 0755); err != nil && !os.IsExist(err) {
-			errorhandles.CheckError("can't create directory ", err)
-		}
 	}
-
-	fmt.Println(newMapData)
 
 	for key, value := range newMapData {
 		file, err := os.Create("./states/" + stateName + "/" + key + ".csv")

@@ -17,7 +17,7 @@ func CityNames() []string {
 
 	fmt.Println("wait for a while to collect cities...")
 
-	stateUrl := "http://publicemailrecords.com/state/oklahoma"
+	stateUrl := "http://publicemailrecords.com/state/indiana"
 
 	// for _, val := range allStates {
 	res, err := http.Get(stateUrl)
