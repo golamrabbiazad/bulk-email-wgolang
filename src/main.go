@@ -18,7 +18,7 @@ type ScrapeFormat struct {
 }
 
 func main() {
-	stateName := "Indiana"
+	stateName := ""
 
 	newMapData := make(map[string]ScrapeFormat)
 
@@ -31,7 +31,7 @@ func main() {
 	}
 
 	for _, val := range allCities {
-		res, err := http.Get("http://publicemailrecords.com/city/" + val + "/" + stateName)
+		res, err := http.Get("" + val + "/" + stateName)
 		errorhandles.CheckError("can't get url response ", err)
 
 		defer res.Body.Close()
@@ -58,7 +58,7 @@ func main() {
 		var textArr []string
 
 		for i := 1; i <= totalPage; i++ {
-			newRes, err := http.Get("http://publicemailrecords.com/city/" + val + "/" + stateName + "?page=" + strconv.Itoa(i))
+			newRes, err := http.Get("" + val + "/" + stateName + "?page=" + strconv.Itoa(i))
 			errorhandles.CheckError("Cannot get url ", err)
 
 			defer res.Body.Close()

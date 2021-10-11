@@ -8,7 +8,7 @@ import (
 var Url string
 
 func SetCityUrl(val string, state string) *http.Response {
-	Url = "http://publicemailrecords.com/city/" + val + "/" + state
+	Url = "" + val + "/" + state
 
 	res, err := http.Get(Url)
 	errorhandles.CheckError("Cannot get url", err)
